@@ -40,4 +40,9 @@ defmodule JsonMsgpackTest do
     assert Json.decode("[-1.2341, [1,2,3,3], -0.121, 0, \"asdlm\", []]") === [-1.2341, [1,2,3,3] , -0.121, 0, "asdlm", []]
     assert Json.decode("[1,2,3,4,5, [1234, 1234]") === {:error, :unexpected_end_of_array}
   end
+
+  test "decode json objects to maps" do
+    assert Json.decode("{\"key\": [\"value \"], \"what?1\": {\"nothing\" : null}, \"null\" : null}") ===
+             %{"key" => ["value "], "what?1" => %{"nothing" => nil}, "null" => nil}
+  end
 end

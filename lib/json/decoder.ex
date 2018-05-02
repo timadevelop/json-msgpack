@@ -83,6 +83,7 @@ defmodule Json.Decoder do
   defp decode_string(string) do
     decode_string(string, "")
   end
+
   # ennds with "
   defp decode_string(<<?"::utf8, rest::binary>>, decoded) do
     {:ok, decoded, rest}
@@ -127,8 +128,6 @@ defmodule Json.Decoder do
     decode_string(rest, decoded <> <<char::utf8>>)
   end
 
-
-
   #
   # Decode array
   #
@@ -150,19 +149,60 @@ defmodule Json.Decoder do
     decode_array(String.trim_leading(rest), decoded_array)
   end
 
-
   # decode string, add it to the beginning of already decoded array
   defp decode_array(string, decoded_array) do
     case decode(string) do
-      {:error, e} -> {:error, e}
+      {:error, e} ->
+        {:error, e}
+
       {:ok, result, rest} ->
         decode_array(String.trim_leading(rest), [result | decoded_array])
     end
   end
+
   #
   # Decode map
   #
   defp decode_map(candidate) do
-    {:error, :todo}
+    decode_map(candidate, Map.new())
+  end
+
+  defp decode_map(<<?}::utf8, rest::binary>>, decoded) do
+    {:ok, decoded, rest}
+  end
+
+  defp decode_map(<<>>, _) do
+    {:error, :unexpected_end_of_map}
+  end
+
+  defp decode_map(<<?"::utf8, rest::binary>>, decoded) do
+    decode_map_key(rest, decoded)
+  end
+
+  defp decode_map(<<?:::utf8, rest::binary>>, key, decoded) do
+    decode_map_value(String.trim_leading(rest), key, decoded)
+  end
+
+  defp decode_map(<<?,::utf8, rest::binary>>, decoded) do
+    decode_map(String.trim_leading(rest), decoded)
+  end
+
+  defp decode_map(_, _) do
+    {:error, :invalid_expression}
+  end
+
+  defp decode_map_key(string, decoded) do
+    case decode_string(string, <<>>) do
+      {:error, error_code} -> {:error, error_code}
+      {:ok, key, rest} -> decode_map(String.trim_leading(rest), key, decoded)
+    end
+  end
+
+  defp decode_map_value(string, key, decoded) do
+    case decode(string) do
+      {:error, e} -> {:error, e}
+      {:ok, value, rest} ->
+        decode_map(String.trim_leading(rest), Map.put(decoded, key, value))
+    end
   end
 end
