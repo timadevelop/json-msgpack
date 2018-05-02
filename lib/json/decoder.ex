@@ -80,9 +80,54 @@ defmodule Json.Decoder do
   #
   # Decode string
   #
-  defp decode_string(str) do
-    {:error, :todo}
+  defp decode_string(string) do
+    decode_string(string, "")
   end
+  # ennds with "
+  defp decode_string(<<?"::utf8, rest::binary>>, decoded) do
+    {:ok, decoded, rest}
+  end
+
+  # empty binary
+  defp decode_string(<<>>, _) do
+    {:error, :unexpected_end_of_string}
+  end
+
+  # \e
+  defp decode_string(<<?\\::utf8, ?n::utf8, rest::binary>>, decoded) do
+    decode_string(rest, decoded <> "\n")
+  end
+
+  defp decode_string(<<?\\::utf8, ?r::utf8, rest::binary>>, decoded) do
+    decode_string(rest, decoded <> "\r")
+  end
+
+  defp decode_string(<<?\\::utf8, ?t::utf8, rest::binary>>, decoded) do
+    decode_string(rest, decoded <> "\t")
+  end
+
+  defp decode_string(<<?\\::utf8, ?b::utf8, rest::binary>>, decoded) do
+    decode_string(rest, decoded <> "\b")
+  end
+
+  defp decode_string(<<?\\::utf8, ?f::utf8, rest::binary>>, decoded) do
+    decode_string(rest, decoded <> "\f")
+  end
+
+  defp decode_string(<<?\\::utf8, ?\\::utf8, rest::binary>>, decoded) do
+    decode_string(rest, decoded <> "\\")
+  end
+
+  defp decode_string(<<?\\::utf8, ?/::utf8, rest::binary>>, decoded) do
+    decode_string(rest, decoded <> "/")
+  end
+
+  # other chars, finally
+  defp decode_string(<<char::utf8, rest::binary>>, decoded) do
+    decode_string(rest, decoded <> <<char::utf8>>)
+  end
+
+
 
   #
   # Decode array
