@@ -22,6 +22,7 @@ defmodule JsonMsgpackTest do
                           "soadjknoOKJOJO\'asd[pk]",
                           "-123IKJN IJN - -q3 '/' dskopf/ smd sdm",
                           "why yes and w'.ay' not? ha1! /\/\/\/\/\/\/\/"])
+    assert Json.decode("\"ads12") === {:error, :unexpected_end_of_string}
   end
 
   defp test_string_decoding(arr) do
@@ -32,4 +33,11 @@ defmodule JsonMsgpackTest do
   end
 
 
+  test "decode json arrays" do
+    assert Json.decode("[]") === []
+    assert Json.decode("[[], [[]], [[[[],[]],[]],[[[],[]]]],[],[]]") === [[], [[]], [[[[],[]],[]],[[[],[]]]],[],[]]
+    assert Json.decode("[-1.2341, -0.121, 0, \"asdlm\"]") === [-1.2341, -0.121, 0, "asdlm"]
+    assert Json.decode("[-1.2341, [1,2,3,3], -0.121, 0, \"asdlm\", []]") === [-1.2341, [1,2,3,3] , -0.121, 0, "asdlm", []]
+    assert Json.decode("[1,2,3,4,5, [1234, 1234]") === {:error, :unexpected_end_of_array}
+  end
 end

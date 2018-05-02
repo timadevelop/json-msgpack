@@ -133,9 +133,32 @@ defmodule Json.Decoder do
   # Decode array
   #
   defp decode_array(candidate) do
-    {:error, :todo}
+    decode_array(candidate, [])
   end
 
+  defp decode_array(<<>>, _) do
+    {:error, :unexpected_end_of_array}
+  end
+
+  # end of array, reverse decoded becase of [ | ]
+  defp decode_array(<<?]::utf8, rest::binary>>, decoded_array) do
+    {:ok, Enum.reverse(decoded_array), String.trim_leading(rest)}
+  end
+
+  # next element in array
+  defp decode_array(<<?,::utf8, rest::binary>>, decoded_array) do
+    decode_array(String.trim_leading(rest), decoded_array)
+  end
+
+
+  # decode string, add it to the beginning of already decoded array
+  defp decode_array(string, decoded_array) do
+    case decode(string) do
+      {:error, e} -> {:error, e}
+      {:ok, result, rest} ->
+        decode_array(String.trim_leading(rest), [result | decoded_array])
+    end
+  end
   #
   # Decode map
   #
