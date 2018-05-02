@@ -1,10 +1,7 @@
 defmodule Json.Decoder do
-
   @doc """
   decode for each type of json object
   """
-
-
 
   # boolean -> boolean
   def decode("false" <> <<rest::binary>>) do
@@ -15,13 +12,11 @@ defmodule Json.Decoder do
     {:ok, true, String.trim_leading(rest)}
   end
 
-
   # null -> nil
   def decode("null" <> <<rest::binary>>) do
     {:ok, nil, String.trim_leading(rest)}
   end
-  
-  
+
   # number -> number
   def decode(<<?-::utf8, number::utf8, _::binary>> = str) when number in ?0..?9 do
     decode_number(str)
@@ -31,12 +26,10 @@ defmodule Json.Decoder do
     decode_number(str)
   end
 
-
   # string -> string
   def decode(<<?"::utf8, rest::binary>>) do
     decode_string(rest)
   end
-
 
   # array -> list
   def decode(<<?[::utf8, rest::binary>>) do
@@ -53,7 +46,6 @@ defmodule Json.Decoder do
     {:error, :invalid_json}
   end
 
-
   #####
   #
   # Decoding
@@ -65,26 +57,25 @@ defmodule Json.Decoder do
   #
   defp decode_number(candidate) do
     case Integer.parse(candidate) do
-    # |> (fn
       :error -> {:error, :invalid_number}
       {_, <<?.::utf8, _::binary>>} -> decode_floating(candidate)
       {_, <<?e::utf8, _::binary>>} -> decode_floating(candidate)
       {_, <<?E::utf8, _::binary>>} -> decode_floating(candidate)
       {result, rest} -> {:ok, result, String.trim_leading(rest)}
-    end #).()
+    end
   end
+
   # decode float
   defp decode_floating(candidate) do
     try do
-      Float.parse(candidate)
-      |> (fn
+      case Float.parse(candidate) do
         :error -> {:error, :invalid_float}
         {result, rest} -> {:ok, result, String.trim_leading(rest)}
-      end).()
+      end
     rescue
       e -> {:error, :float_parse, e, candidate}
     end
-    end
+  end
 
   #
   # Decode string
@@ -92,7 +83,6 @@ defmodule Json.Decoder do
   defp decode_string(str) do
     {:error, :todo}
   end
-
 
   #
   # Decode array
@@ -107,12 +97,4 @@ defmodule Json.Decoder do
   defp decode_map(candidate) do
     {:error, :todo}
   end
-
-
-
-
-
-
-
 end
-
