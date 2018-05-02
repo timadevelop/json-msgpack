@@ -5,7 +5,10 @@ defmodule Json do
   end
 
   def decode(json) do
-    Json.Decoder.decode(json)
+    case Json.Decoder.decode(json) do
+      {:ok, result, rest} -> result
+      e -> e
+    end
   end
 
 end
