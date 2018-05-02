@@ -1,3 +1,0 @@
-defmodule MsgPack do
-
-end
