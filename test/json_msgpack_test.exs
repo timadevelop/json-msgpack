@@ -109,4 +109,72 @@ defmodule JsonMsgpackTest do
     # assert Json.encode(%{"key" => ["value "], "what?1" => %{"nothing" => nil}, "null" => nil}) ===
     # "{\"key\":[\"value \"],\"what?1\":{\"nothing\":null},\"null\":null}"
   end
+
+
+
+  test "msgpack numbers" do
+    # int
+    assert MsgPack.decode(MsgPack.encode(1)) === 1
+    assert MsgPack.decode(MsgPack.encode(-1)) === -1
+    assert MsgPack.decode(MsgPack.encode(12345)) === 12345
+
+    # floats
+    assert MsgPack.decode(MsgPack.encode(0.1)) === 0.1
+    assert MsgPack.decode(MsgPack.encode(0.001)) === 0.001
+    assert MsgPack.decode(MsgPack.encode(-0.001)) === -0.001
+    assert MsgPack.decode(MsgPack.encode(2134.2341)) === 2134.2341
+  end
+
+
+  test "msgpack strings" do
+    assert MsgPack.decode(MsgPack.encode("i am an string!")) === "i am an string!"
+    assert MsgPack.decode(MsgPack.encode("Hi, here: \"is some text\", \n and newline")) === "Hi, here: \"is some text\", \n and newline"
+  end
+
+  test "msgpack arrays" do
+    assert MsgPack.decode(MsgPack.encode([])) === []
+    assert MsgPack.decode(MsgPack.encode([[], [[]], [[[[], []], []], [[[], []]]], [], []])) === [[], [[]], [[[[], []], []], [[[], []]]], [], []]
+    assert MsgPack.decode(MsgPack.encode([-1.2341, -0.121, 0, "asdlm"])) === [-1.2341, -0.121, 0, "asdlm"]
+    assert MsgPack.decode(MsgPack.encode([-1.2341, [1, 2, 3, 3], -0.121, 0, "asdlm", []])) === [-1.2341, [1, 2, 3, 3], -0.121, 0, "asdlm", []]
+  end
+
+  test "msgpack maps" do
+    assert MsgPack.decode(MsgPack.encode(%{"key0" => ["value0"]})) === %{"key0" => ["value0"]}
+    assert MsgPack.decode(MsgPack.encode(%{"key0" => ["value0"], "key1" => %{"v" => 3}})) ===  %{"key0" => ["value0"], "key1" => %{"v" => 3}}
+  end
+
+
+  #
+  # Final tests
+  #
+  test "convert integers" do
+    json = "12312"
+    msgpack = JsonMsgpack.jsonToMsgPack(json)
+    assert JsonMsgpack.msgPackToJson(msgpack) === json
+  end
+
+  test "convert floats" do
+    json = "-123.2324"
+    msgpack = JsonMsgpack.jsonToMsgPack(json)
+    assert JsonMsgpack.msgPackToJson(msgpack) === json
+  end
+
+  test "convert strings" do
+    json = "\"I am A STRING !\""
+    msgpack = JsonMsgpack.jsonToMsgPack(json)
+    assert JsonMsgpack.msgPackToJson(msgpack) === json
+  end
+
+  test "convert lists" do
+    json = "[7,4,23,12,46,68]"
+    msgpack = JsonMsgpack.jsonToMsgPack(json)
+    assert JsonMsgpack.msgPackToJson(msgpack) === json
+  end
+
+  test "convert maps" do
+    json = "{\"kejson\":[\"value0\",\"value1\"],\"null\":null}"
+    msgpack = JsonMsgpack.jsonToMsgPack(json)
+    assert JsonMsgpack.msgPackToJson(msgpack) === json
+  end
+
 end

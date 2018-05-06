@@ -5,6 +5,10 @@ defmodule MsgPack do
   end
 
   def decode(msg) do
-    MsgPack.Decoder.decode(msg)
+    case MsgPack.Decoder.decode(msg) do
+      {:ok, result, rest} -> result
+      e -> e
+    end
   end
+
 end
