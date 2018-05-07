@@ -96,8 +96,8 @@ defmodule JsonMsgpackTest do
   end
 
   test "encode maps" do
-    assert Json.encode(%{"key0" => ["value0"]}) ===
-             "{\"key0\":[\"value0\"]}"
+    assert Json.encode(%{"key0" => ["value0"]}) === "{\"key0\":[\"value0\"]}"
+
     assert Json.encode(%{"key0" => ["value0"], "key1" => %{"v" => 3}}) ===
              "{\"key0\":[\"value0\"],\"key1\":{\"v\":3}}"
 
@@ -105,8 +105,6 @@ defmodule JsonMsgpackTest do
     # assert Json.encode(%{"key" => ["value "], "what?1" => %{"nothing" => nil}, "null" => nil}) ===
     # "{\"key\":[\"value \"],\"what?1\":{\"nothing\":null},\"null\":null}"
   end
-
-
 
   test "msgpack numbers" do
     # int
@@ -121,24 +119,49 @@ defmodule JsonMsgpackTest do
     assert MsgPack.decode(MsgPack.encode(2134.2341)) === 2134.2341
   end
 
-
   test "msgpack strings" do
     assert MsgPack.decode(MsgPack.encode("i am an string!")) === "i am an string!"
-    assert MsgPack.decode(MsgPack.encode("Hi, here: \"is some text\", \n and newline")) === "Hi, here: \"is some text\", \n and newline"
+
+    assert MsgPack.decode(MsgPack.encode("Hi, here: \"is some text\", \n and newline")) ===
+             "Hi, here: \"is some text\", \n and newline"
   end
 
   test "msgpack arrays" do
     assert MsgPack.decode(MsgPack.encode([])) === []
-    assert MsgPack.decode(MsgPack.encode([[], [[]], [[[[], []], []], [[[], []]]], [], []])) === [[], [[]], [[[[], []], []], [[[], []]]], [], []]
-    assert MsgPack.decode(MsgPack.encode([-1.2341, -0.121, 0, "asdlm"])) === [-1.2341, -0.121, 0, "asdlm"]
-    assert MsgPack.decode(MsgPack.encode([-1.2341, [1, 2, 3, 3], -0.121, 0, "asdlm", []])) === [-1.2341, [1, 2, 3, 3], -0.121, 0, "asdlm", []]
+
+    assert MsgPack.decode(MsgPack.encode([[], [[]], [[[[], []], []], [[[], []]]], [], []])) === [
+             [],
+             [[]],
+             [[[[], []], []], [[[], []]]],
+             [],
+             []
+           ]
+
+    assert MsgPack.decode(MsgPack.encode([-1.2341, -0.121, 0, "asdlm"])) === [
+             -1.2341,
+             -0.121,
+             0,
+             "asdlm"
+           ]
+
+    assert MsgPack.decode(MsgPack.encode([-1.2341, [1, 2, 3, 3], -0.121, 0, "asdlm", []])) === [
+             -1.2341,
+             [1, 2, 3, 3],
+             -0.121,
+             0,
+             "asdlm",
+             []
+           ]
   end
 
   test "msgpack maps" do
     assert MsgPack.decode(MsgPack.encode(%{"key0" => ["value0"]})) === %{"key0" => ["value0"]}
-    assert MsgPack.decode(MsgPack.encode(%{"key0" => ["value0"], "key1" => %{"v" => 3}})) ===  %{"key0" => ["value0"], "key1" => %{"v" => 3}}
-  end
 
+    assert MsgPack.decode(MsgPack.encode(%{"key0" => ["value0"], "key1" => %{"v" => 3}})) === %{
+             "key0" => ["value0"],
+             "key1" => %{"v" => 3}
+           }
+  end
 
   #
   # Final tests
@@ -172,5 +195,4 @@ defmodule JsonMsgpackTest do
     msgpack = JsonMsgpack.jsonToMsgPack(json)
     assert JsonMsgpack.msgPackToJson(msgpack) === json
   end
-
 end

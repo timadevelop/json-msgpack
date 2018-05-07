@@ -193,7 +193,6 @@ defmodule Json.Decoder do
     decode_map_value(String.trim_leading(rest), key, decoded)
   end
 
-
   defp decode_map_key(string, decoded) do
     case decode_string(string, <<>>) do
       {:error, error_code} -> {:error, error_code}
