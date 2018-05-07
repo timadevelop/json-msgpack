@@ -1,4 +1,9 @@
 defmodule Json.Encoder do
+  @moduledoc """
+  Encode for json - encodes elixir primitives to json.
+
+  See [json spec](https://stackoverflow.com/questions/383692/what-is-json-and-why-would-i-use-it/383699#383699)
+  """
   def encode(number) when is_number(number) do
     to_string(number)
   end

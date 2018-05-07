@@ -115,5 +115,4 @@ defmodule JsonMsgpack do
   def encodeMsgPack(x) do
     MsgPack.encode(x)
   end
-
 end

@@ -1,6 +1,8 @@
 defmodule Json.Decoder do
-  @doc """
-  decode for each type of json object
+  @moduledoc """
+  Decode for json - decodes json to elixir primitives.
+
+  See [json spec](https://stackoverflow.com/questions/383692/what-is-json-and-why-would-i-use-it/383699#383699)
   """
 
   # boolean -> boolean
@@ -179,10 +181,6 @@ defmodule Json.Decoder do
     decode_map_key(rest, decoded)
   end
 
-  defp decode_map(<<?:::utf8, rest::binary>>, key, decoded) do
-    decode_map_value(String.trim_leading(rest), key, decoded)
-  end
-
   defp decode_map(<<?,::utf8, rest::binary>>, decoded) do
     decode_map(String.trim_leading(rest), decoded)
   end
@@ -190,6 +188,11 @@ defmodule Json.Decoder do
   defp decode_map(_, _) do
     {:error, :invalid_expression}
   end
+
+  defp decode_map(<<?:::utf8, rest::binary>>, key, decoded) do
+    decode_map_value(String.trim_leading(rest), key, decoded)
+  end
+
 
   defp decode_map_key(string, decoded) do
     case decode_string(string, <<>>) do
@@ -200,7 +203,9 @@ defmodule Json.Decoder do
 
   defp decode_map_value(string, key, decoded) do
     case decode(string) do
-      {:error, e} -> {:error, e}
+      {:error, e} ->
+        {:error, e}
+
       {:ok, value, rest} ->
         decode_map(String.trim_leading(rest), Map.put(decoded, key, value))
     end

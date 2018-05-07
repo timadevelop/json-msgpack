@@ -1,4 +1,10 @@
 defmodule MsgPack.Encoder do
+  @moduledoc """
+  Encode for msg pack - encodes elixir primitives to msgpack format.
+
+  See [msgpack spec](https://github.com/msgpack/msgpack/blob/master/spec.md)
+  """
+
   # macro for power of 2
   defmacro pow2(x) do
     quote do

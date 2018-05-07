@@ -1,4 +1,21 @@
 defmodule MsgPack.Decoder do
+  @moduledoc """
+  Decode for msg pack - decodes msgpack to elixir primitives.
+
+  See [msgpack spec](https://github.com/msgpack/msgpack/blob/master/spec.md)
+  """
+  def decode(<<0xC0::size(8), rest::binary>>) do
+    {:ok, nil, rest}
+  end
+
+  def decode(<<0xC2::size(8), rest::binary>>) do
+    {:ok, false, rest}
+  end
+
+  def decode(<<0xC3::size(8), rest::binary>>) do
+    {:ok, true, rest}
+  end
+
   def decode(<<0b0::size(1), fixint::integer-unsigned-size(7), rest::binary>>) do
     {:ok, fixint, rest}
   end
@@ -45,18 +62,6 @@ defmodule MsgPack.Decoder do
 
   def decode(<<0xCB::size(8), float64::float-big-size(64), rest::binary>>) do
     {:ok, float64, rest}
-  end
-
-  def decode(<<0xC0::size(8), rest::binary>>) do
-    {:ok, nil, rest}
-  end
-
-  def decode(<<0xC2::size(8), rest::binary>>) do
-    {:ok, false, rest}
-  end
-
-  def decode(<<0xC3::size(8), rest::binary>>) do
-    {:ok, true, rest}
   end
 
   def decode(
@@ -153,17 +158,18 @@ defmodule MsgPack.Decoder do
 
   defp decode_map(length, decoded, data) do
     case decode(data) do
+      {:error, error_code} -> {:error, error_code}
+      {:ok, key, rest} -> decode_map(length, decoded, key, rest)
+    end
+  end
+
+  defp decode_map(length, decoded, key, rest) do
+    case decode(rest) do
       {:error, error_code} ->
         {:error, error_code}
 
-      {:ok, key, rest} ->
-        case decode(rest) do
-          {:error, error_code} ->
-            {:error, error_code}
-
-          {:ok, value, remaining} ->
-            decode_map(length - 1, Map.put(decoded, key, value), remaining)
-        end
+      {:ok, value, remaining} ->
+        decode_map(length - 1, Map.put(decoded, key, value), remaining)
     end
   end
 end
