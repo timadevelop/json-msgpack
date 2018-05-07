@@ -2,10 +2,6 @@ defmodule JsonMsgpackTest do
   use ExUnit.Case
   doctest JsonMsgpack
 
-  test "greets the world" do
-    assert JsonMsgpack.hello() === :world
-  end
-
   test "decode json numbers" do
     assert JsonMsgpack.decodeJson("1") === 1
     assert JsonMsgpack.decodeJson("-12345323") === -12_345_323
