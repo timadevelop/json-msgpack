@@ -10,5 +10,8 @@ FMI [elixir-course](https://github.com/ElixirCourse/) project.
 
 
 ## TODO:
-- docs
-- remove case / cond?
+- streams?
+- async?
+- files?
+- refactor
++ docs
