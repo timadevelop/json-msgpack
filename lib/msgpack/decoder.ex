@@ -165,11 +165,8 @@ defmodule MsgPack.Decoder do
 
   defp decode_map(length, decoded, key, rest) do
     case decode(rest) do
-      {:error, error_code} ->
-        {:error, error_code}
-
-      {:ok, value, remaining} ->
-        decode_map(length - 1, Map.put(decoded, key, value), remaining)
+      {:error, error_code} -> {:error, error_code}
+      {:ok, value, remaining} -> decode_map(length - 1, Map.put(decoded, key, value), remaining)
     end
   end
 end
