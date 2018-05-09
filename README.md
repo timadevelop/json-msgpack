@@ -10,6 +10,8 @@ FMI [elixir-course](https://github.com/ElixirCourse/) project.
 
 
 ## TODO:
+- fix \n in js object
+- write docs for each module
 - streams?
 - async?
 - files?
